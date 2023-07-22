@@ -39,7 +39,7 @@ Update_Upgrade_Packages(){
 }
 
 Install_Bin(){
-	wget https://github.com/freakinyy/xray_server_installer_for_ubuntu/edit/main/xray_bin_installer.sh%4064 -O xray_bin_installer.sh
+	wget https://github.com/freakinyy/xray_server_installer_for_ubuntu/raw/main/xray_bin_installer.sh%4064 -O xray_bin_installer.sh
 	mv xray_bin_installer.sh /usr/bin
 	chmod +x /usr/bin/xray_bin_installer.sh
 	xray_bin_installer.sh install
