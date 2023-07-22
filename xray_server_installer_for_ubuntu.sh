@@ -40,7 +40,7 @@ Update_Upgrade_Packages(){
 
 Install_Bin(){
 	wget https://github.com/freakinyy/xray_server_installer_for_ubuntu/edit/main/xray_bin_installer.sh%4064 -O xray_bin_installer.sh
-	cp xray_bin_installer.sh /usr/bin
+	mv xray_bin_installer.sh /usr/bin
 	chmod +x /usr/bin/xray_bin_installer.sh
 	xray_bin_installer.sh install
 }
@@ -275,7 +275,7 @@ Create_Service(){
 		rm -f /etc/init.d/xray_server
 	fi
 	wget https://github.com/freakinyy/xray_server_installer_for_ubuntu/raw/main/xray_server.service%40ubuntu -O xray_server.service@ubuntu
-	cp xray_server.service@ubuntu /etc/init.d/xray_server
+	mv xray_server.service@ubuntu /etc/init.d/xray_server
 	chmod +x /etc/init.d/xray_server
 	update-rc.d -f xray_server defaults 95
 	echo "Create Service Done."
