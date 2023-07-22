@@ -1,0 +1,111 @@
+#!/bin/bash
+
+machine_type="64"
+kernel_name="linux"
+
+path_install_to="/usr/bin"
+
+guess_package_manager(){
+	local package_manager_res
+	local package_managers="apt opkg"
+	for package_manager in $package_managers
+	do
+		which $package_manager >/dev/null
+		if [ $? == 0 ];then
+			package_manager_res=$package_manager
+			break
+		fi
+	done
+	echo $package_manager_res
+}
+
+get_version_from_github(){
+	local version=$(curl -s https://api.github.com/repos/"$1"/"$2"/releases | jq -r '.[0]' | jq -r ".tag_name" | sed 's/^v*//g')
+	echo $version
+}
+
+get_version_from_bin(){
+	local version=$($1 version | sed -n 1p | cut -d " " -f2 | sed 's/^v*//g')
+	echo $version
+}
+
+install_bin(){
+	local need_update="0"
+	local org="XTLS"
+	local repo="Xray-core"
+	local repo_download="Xray"
+	local version_new=$(get_version_from_github $org $repo)
+	local version_cur=""
+	local bins="xray"
+	for bin in $bins
+	do
+		version_cur=$(get_version_from_bin $bin)
+		if [ "$version_new" != "$version_cur" ];then
+			need_update="1"
+			break
+		fi
+	done
+	if [ "$need_update" == "1" ];then
+		local tmp_dir=`mktemp -d /tmp/"$repo"_bins.XXXXXX`
+		cd $tmp_dir
+		wget https://github.com/"$org"/"$repo"/releases/download/v"$version_new"/"$repo_download"-"$kernel_name"-"$machine_type".zip -O "$repo_download"-"$kernel_name"-"$machine_type".zip > /dev/null 2>&1
+		unzip "$repo_download"-"$kernel_name"-"$machine_type".zip
+		/etc/init.d/xray_server stop > /dev/null 2>&1
+		/etc/init.d/xray_tproxy stop > /dev/null 2>&1
+		for bin in $bins
+		do
+			chmod +x $bin
+			local version_new_bin=$(get_version_from_bin "./$bin")
+			if [ "$version_new_bin" == "$version_new" ];then
+				mv -f $bin $path_install_to/$bin
+			fi
+		done
+		/etc/init.d/xray_tproxy start > /dev/null 2>&1
+		/etc/init.d/xray_server start > /dev/null 2>&1
+		rm -rf $tmp_dir
+	fi
+}
+
+install(){
+	pm=$(guess_package_manager)
+	
+	which curl > /dev/null
+	if [ $? != 0 ];then
+		$pm install curl -y
+	fi
+	which jq > /dev/null
+	if [ $? != 0 ];then
+		$pm install jq -y
+	fi
+	which unzip > /dev/null
+	if [ $? != 0 ];then
+		$pm install unzip -y
+	fi
+
+	install_bin
+}
+
+uninstall(){
+	local bins="xray"
+	for bin in $bins
+	do
+		rm -f $path_install_to/$bin
+	done
+}
+
+update(){
+	install_bin
+}
+
+case "$1" in
+install)			install
+					;;
+uninstall)			uninstall
+					;;
+update)				update
+					;;
+*)					echo "Usage: install|uninstall|update"
+					exit 2
+					;;
+esac
+exit 0
