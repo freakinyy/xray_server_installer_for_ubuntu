@@ -194,10 +194,10 @@ Create_Json(){
 				"security": "reality",
 				"realitySettings": {
 					"show": false,
-					"dest": "www.amazon.com:443",
+					"dest": "d1.awsstatic.com:443",
 					"xver": 0,
 					"serverNames": [
-						"www.amazon.com"
+						"d1.awsstatic.com"
 					],
 					"privateKey": "$private_key",
 					"maxTimeDiff": 60000,
@@ -240,7 +240,7 @@ Show_Client_Outbound(){
 	"tls": {
 		"enabled": true,
 		"disable_sni": false,
-		"server_name": "www.amazon.com",
+		"server_name": "d1.awsstatic.com",
 		"insecure": false,
 		"utls": {
 			"enabled": true,
